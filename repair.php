@@ -89,7 +89,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $st->execute([
         $_SESSION['user']['id'], $device, $issue, $description, $contact_info, $urgency, $p1, $p2, $p3
       ]);
-      $success = "Repair request submitted! Ticket #" . $pdo->lastInsertId();
+      $ticket_id = $pdo->lastInsertId();
+      $success = "Repair request submitted! Ticket #" . $ticket_id;
+
+      // Notify admin via email (if mail function is available)
+      $admin_email = 'admin@imobile.com'; // Change this to actual admin email
+      $subject = "New Repair Request - Ticket #$ticket_id";
+      $message = "A new repair request has been submitted:\n\n" .
+                 "Ticket ID: $ticket_id\n" .
+                 "User ID: {$_SESSION['user']['id']}\n" .
+                 "Device: $device\n" .
+                 "Issue: $issue\n" .
+                 "Urgency: $urgency\n" .
+                 "Contact: $contact_info\n" .
+                 "Description: $description\n\n" .
+                 "Please review this request in the admin panel.";
+
+      $headers = "From: noreply@imobile.com\r\n" .
+                 "Reply-To: $contact_info\r\n" .
+                 "X-Mailer: PHP/" . phpversion();
+
+      // Try to send email (won't work in local environment without mail server)
+      @mail($admin_email, $subject, $message, $headers);
     }
   } catch (Throwable $e) {
     $errors[] = $e->getMessage();
