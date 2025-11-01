@@ -1,0 +1,5 @@
+# uploads/.htaccess
+# Prevent executing scripts inside uploads
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .phps .cgi .pl .asp .aspx .js
+php_flag engine off
+Options -ExecCGI
